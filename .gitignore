@@ -1,8 +1,4 @@
-# But not these files...
-!.gitignore
-!SdkAutoTest/*
-
-# Ignore
+# Ignore these files
 bin/
 lib/
 include/
