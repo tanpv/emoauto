@@ -1,6 +1,6 @@
 # Ignore these files
-bin/
-lib/
+#bin/
+#lib/
 include/
 property/
 src/
