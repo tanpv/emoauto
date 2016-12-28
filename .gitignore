@@ -4,7 +4,7 @@ lib/
 include/
 property/
 src/
-SdkAutoTest/*.sln
-SdkAutoTest/*.db
-SdkAutoTest/*.opendb
+SdkAutoTest/SdkAutoTest.sln
+SdkAutoTest/SdkAutoTest.VC.db
+SdkAutoTest/SdkAutoTest.VC.VC.opendb
 SdkAutoTest/*.vs
