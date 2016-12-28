@@ -1,0 +1,14 @@
+# But not these files...
+!.gitignore
+!SdkAutoTest/*
+
+# Ignore
+bin/
+lib/
+include/
+property/
+src/
+SdkAutoTest/*.sln
+SdkAutoTest/*.db
+SdkAutoTest/*.opendb
+SdkAutoTest/*.vs
