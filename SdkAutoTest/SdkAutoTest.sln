@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActivateLicense", "Activate
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiDongleConnection", "MultiDongleConnection\MultiDongleConnection.vcxproj", "{7E5F5428-E4CC-458D-AA9C-E2C918D1C853}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeadsetInformationLoggerBoostTest", "HeadsetInformationLoggerBoostTest\HeadsetInformationLoggerBoostTest.vcxproj", "{FB497C95-1301-44D0-9262-D25E99352FA3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeadsetInformationLoggerBoost", "HeadsetInformationLoggerBoost\HeadsetInformationLoggerBoostTest.vcxproj", "{FB497C95-1301-44D0-9262-D25E99352FA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
