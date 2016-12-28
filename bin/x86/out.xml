@@ -1,0 +1,5 @@
+Running 6 test cases...
+check add(2, 2) == 4
+run before every test case start
+test multiple two integer number
+run after every test case finish
