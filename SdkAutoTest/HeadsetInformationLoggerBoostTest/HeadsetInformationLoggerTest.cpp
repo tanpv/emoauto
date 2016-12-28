@@ -1,13 +1,12 @@
-//--------------------------------------------------------------
-/****************************************************************************
-**
-** Copyright 2015 by Emotiv. All rights reserved
-** Example - Headset Information Logger
-** This example allows getting headset infor: contactquality, wireless strength
-** battery level.
-** This example work on single connection
-****************************************************************************/
-#define BOOST_TEST_MODULE Add_Boots_Test
+/*
+SDK function covered :
+IS_GetWirelessSignalStatus
+IS_GetBatteryChargeLevel
+IS_GetContactQuality
+
+- Check wireless status, battery level and contact quality information from Insight headset
+*/
+#define BOOST_TEST_MODULE Headset_Information_Logger
 #define BOOST_TEST_NO_MAIN
 
 #include <iostream>
@@ -65,16 +64,12 @@ struct Fixture {
 
 };
 
-//--------------------------------------------------------------
-//function
-//int multiple(int i, int j) { return i*j; }
-
 
 //define and bind suite to fixture at one macrco
-BOOST_FIXTURE_TEST_SUITE(duytan, Fixture)
+BOOST_FIXTURE_TEST_SUITE(Headset_Information_Logger, Fixture)
 
 //test case
-BOOST_AUTO_TEST_CASE(headset_information_logger)
+BOOST_AUTO_TEST_CASE(TC01_GIVEN_connected_Insight_Headset_WHEN_turned_on_and_wearing_THEN_return_headset_information)
 {
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io, boost::posix_time::seconds(test_case_timer.count()));
