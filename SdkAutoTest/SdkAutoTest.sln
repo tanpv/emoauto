@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActivateLicense", "ActivateLicense\ActivateLicense.vcxproj", "{562AF2EF-2B1B-47A1-AB81-FC961464B1A6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiDongleConnection", "MultiDongleConnection\MultiDongleConnection.vcxproj", "{7E5F5428-E4CC-458D-AA9C-E2C918D1C853}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeadsetInformationLoggerBoost", "HeadsetInformationLoggerBoost\HeadsetInformationLoggerBoostTest.vcxproj", "{FB497C95-1301-44D0-9262-D25E99352FA3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SavingAndLoadingProfileCloud", "SavingAndLoadingProfileCloud\SavingAndLoadingProfileCloud.vcxproj", "{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{FB497C95-1301-44D0-9262-D25E99352FA3}.Release|x64.Build.0 = Release|x64
 		{FB497C95-1301-44D0-9262-D25E99352FA3}.Release|x86.ActiveCfg = Release|Win32
 		{FB497C95-1301-44D0-9262-D25E99352FA3}.Release|x86.Build.0 = Release|Win32
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Debug|x64.ActiveCfg = Debug|x64
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Debug|x64.Build.0 = Debug|x64
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Debug|x86.ActiveCfg = Debug|Win32
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Debug|x86.Build.0 = Debug|Win32
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Release|x64.ActiveCfg = Release|x64
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Release|x64.Build.0 = Release|x64
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Release|x86.ActiveCfg = Release|Win32
+		{AC7EB821-B7F3-4D08-8008-9D8EEB700A55}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
