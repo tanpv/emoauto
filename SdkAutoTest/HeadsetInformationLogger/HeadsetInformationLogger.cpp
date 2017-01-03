@@ -19,6 +19,7 @@ IS_GetBatteryChargeLevel
 #include "Iedk.h"
 #include "IedkErrorCode.h"
 #include "IEmoStateDLL.h"
+#include <iomanip>
 
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/asio.hpp>
@@ -28,7 +29,6 @@ IS_GetBatteryChargeLevel
 #include <string>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <atomic>
-
 
 namespace utf = boost::unit_test;
 std::atomic<bool> isTimeout(false);
@@ -87,8 +87,6 @@ BOOST_AUTO_TEST_CASE(TC01_GIVEN_Insight_headset_WHEN_connected_THEN_return_heads
 	IEE_SignalStrength_t wirelessStrength;
 	bool onStateChanged = false;
 
-	isTimeout = false; //reset expiration timer
-
 	while (true) {
 
 		state = IEE_EngineGetNextEvent(eEvent);
@@ -101,9 +99,12 @@ BOOST_AUTO_TEST_CASE(TC01_GIVEN_Insight_headset_WHEN_connected_THEN_return_heads
 			{
 			case IEE_UserAdded:
 				BOOST_TEST_MESSAGE("User added");
+				std::cout << "User added" << '\n';
+				std::cout << "Uptime - wireless - battery - AF3 - T7 - PZ - T8 - AF4" << '\n';
 				break;
 			case IEE_UserRemoved:
 				BOOST_TEST_MESSAGE("User removed");
+				std::cout << "User removed" << '\n';
 				break;
 			case IEE_EmoStateUpdated:
 				onStateChanged = true;
@@ -119,20 +120,27 @@ BOOST_AUTO_TEST_CASE(TC01_GIVEN_Insight_headset_WHEN_connected_THEN_return_heads
 			onStateChanged = false;
 			systemUpTime = IS_GetTimeFromStart(eState);
 			wirelessStrength = IS_GetWirelessSignalStatus(eState);
-
+			
 			if (wirelessStrength != NO_SIG)
 			{
 				//std::cout << "Time: " << systemUpTime << std::endl;
 				IS_GetBatteryChargeLevel(eState, &batteryLevel, &maxBatteryLevel);
-
 				BOOST_CHECK(systemUpTime > 0);
 				BOOST_CHECK(wirelessStrength > 0 || wirelessStrength <= 4);
 				BOOST_CHECK(batteryLevel >= 0 || batteryLevel <= 4);
-				BOOST_CHECK(IS_GetContactQuality(eState, IEE_CHAN_AF3) >= 0);
-				BOOST_CHECK(IS_GetContactQuality(eState, IEE_CHAN_T7) >= 0);
-				BOOST_CHECK(IS_GetContactQuality(eState, IEE_CHAN_Pz) >= 0);
-				BOOST_CHECK(IS_GetContactQuality(eState, IEE_CHAN_T8) >= 0);
-				BOOST_CHECK(IS_GetContactQuality(eState, IEE_CHAN_AF4) >= 0);
+				BOOST_CHECK((IS_GetContactQuality(eState, IEE_CHAN_AF3) >= 0) || (IS_GetContactQuality(eState, IEE_CHAN_AF3) <= 4));
+				BOOST_CHECK((IS_GetContactQuality(eState, IEE_CHAN_T7) >= 0) || (IS_GetContactQuality(eState, IEE_CHAN_T7) <= 4));
+				BOOST_CHECK((IS_GetContactQuality(eState, IEE_CHAN_Pz) >= 0) || (IS_GetContactQuality(eState, IEE_CHAN_Pz) <= 4));
+				BOOST_CHECK((IS_GetContactQuality(eState, IEE_CHAN_T8) >= 0) || (IS_GetContactQuality(eState, IEE_CHAN_T8) <= 4));
+				BOOST_CHECK((IS_GetContactQuality(eState, IEE_CHAN_AF4) >= 0) || (IS_GetContactQuality(eState, IEE_CHAN_AF4) <= 4));
+				std::cout << std::fixed << std::setprecision(2) << systemUpTime << "         "
+					<< wirelessStrength << "         "
+					<< batteryLevel << "      "
+					<< IS_GetContactQuality(eState, IEE_CHAN_AF3) << "     "
+					<< IS_GetContactQuality(eState, IEE_CHAN_T7) <<	"    "
+					<< IS_GetContactQuality(eState, IEE_CHAN_Pz) << "    "
+					<< IS_GetContactQuality(eState, IEE_CHAN_T8) << "    "
+					<< IS_GetContactQuality(eState, IEE_CHAN_AF4) << '\n';
 			}
 		}
 
@@ -143,10 +151,6 @@ BOOST_AUTO_TEST_CASE(TC01_GIVEN_Insight_headset_WHEN_connected_THEN_return_heads
 		}
 	}
 	asioThread.join();
-}
-
-BOOST_AUTO_TEST_CASE(mental_command_demo) {
-
 }
 
 //end of suite

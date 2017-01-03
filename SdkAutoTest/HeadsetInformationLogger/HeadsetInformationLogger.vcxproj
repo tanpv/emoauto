@@ -22,7 +22,7 @@
     <ProjectGuid>{FB497C95-1301-44D0-9262-D25E99352FA3}</ProjectGuid>
     <RootNamespace>HeadsetInformationLoggerBoostTest</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>HeadsetInformationLoggerBoost</ProjectName>
+    <ProjectName>HeadsetInformationLogger</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
