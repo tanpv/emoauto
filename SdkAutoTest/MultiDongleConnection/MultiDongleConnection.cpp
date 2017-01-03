@@ -1,23 +1,7 @@
 /*
-- list all function tested at beginning of file
-- how to put test point in test case ? 
-
-Naming convention
-- project name
-- same module name
-- same suite name
-- same original example name
-- test case name : use GIVEN WHEN THEN structure --> make test case clear
-*/
-
-
-/*
-
 SDK function covered :
 	IEE_ActivateLicense
 	IEE_LicenseInformation
-
-
 */
 
 #define BOOST_TEST_MODULE MultiDongleConnection
