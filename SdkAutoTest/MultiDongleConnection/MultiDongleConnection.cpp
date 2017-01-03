@@ -72,7 +72,15 @@ BOOST_AUTO_TEST_CASE(TC01_Given_has_one_dongle_When_dongle_plugedin_or_remove_Th
 	unsigned int userID = -1;
 	list<int> listUser;
 	int state = 0;
-	cout << "You have 2 mins to do test, Please insert dongle and then remove for check" << endl;
+
+	cout << "-----------------------------------------------------------------------" << endl;
+	cout << "   This test check the ability to connect to two headsets at the same time" << endl;
+	cout << "   It captures event when you plug or unplug dongle" << endl;
+	cout << "   Every time you plug or unplug dongle, there is a notice that dongle ID" << endl;
+	cout << "   Please prepare atlease 2 dongle to do this test" << endl; 
+	cout << endl;
+	cout << "   You have 2 mins to do test, Please insert dongle and then remove for check" << endl;
+	cout << "-----------------------------------------------------------------------" << endl;
 
 	// handle timer
 	boost::asio::io_service io;
@@ -135,5 +143,6 @@ BOOST_AUTO_TEST_CASE(TC01_Given_has_one_dongle_When_dongle_plugedin_or_remove_Th
 
 	asioThread.join();
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
