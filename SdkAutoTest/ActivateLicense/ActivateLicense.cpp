@@ -25,6 +25,32 @@
 #include "Iedk.h"
 #include "IedkErrorCode.h"
 
+std::string edfFile = "../../edf/t.edf";
+//defined license_key in testcase
+// case EDK_LICENSE_NOT_FOUND
+std::string const LICENSE_KEY_NOT_FOUND = "11b9d092-db6b-4f18-b7b4-04d640110d4c";
+//case EDK_LICENSE_ERROR
+std::string const LICENSE_KEY_ERROR = "50541929-7330-4059-b073-30814ff15ea2";
+// case EDK_LICENSE_EXPIRED
+std::string const LICENSE_KEY_EXPIRED = "a1b9d092-db6b-4f18-b7b4-04d640110d4c";
+//case EDK_LICENSE_REGISTERED
+std::string const LICENSE_KEY_VALID = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_LICENSE_DEVICE_LIMITED
+std::string const LICENSE_KEY_DEVICE_LIMITED = "5e9f73e0-3aab-4bc7-9477-9838c3c0eb23";
+//case EDK_UNKNOWN_ERROR
+std::string const UNKNOWN_ERROR = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_OVER_QUOTA_IN_DAY
+std::string const LICENSE_KEY_OVER_QUOTA_IN_DAY = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_OVER_QUOTA_IN_MONTH
+std::string const LICENSE_KEY_OVER_QUOTA_IN_MONTH = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_OVER_QUOTA
+std::string const LICENSE_KEY_OVER_QUOTA = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_ACCESS_DENIED
+std::string const LICENSE_KEY_ACCESS_DENIED = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_LICENSE_ERROR
+std::string const LICENSE_KEY_LICENSE_ERROR = "50541929-7330-4059-b073-30814ff15ea2";
+//case EDK_NO_ACTIVE_LICENSE
+std::string const LICENSE_KEY_NO_ACTIVE_LICENSE = "50541929-7330-4059-b073-30814ff15ea2";
 
 std::string convertEpochToTime(time_t epochTime, std::string format = "%Y-%m-%d %H:%M:%S");
 std::string convertEpochToTime(time_t epochTime, std::string format)
@@ -50,139 +76,84 @@ std::string intToHex(int x)
 	return result;
 }
 
-void printLicenseInformation(IEE_LicenseInfos_t& licenseInfos)
-{
-	int licenseType = 0;
-
-	std::cout << std::endl;
-	std::cout << "Date From  : " << convertEpochToTime(licenseInfos.date_from) << std::endl;
-	std::cout << "Date To    : " << convertEpochToTime(licenseInfos.date_to) << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Seat number: " << licenseInfos.seat_count << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Total Quota: " << licenseInfos.quota << std::endl;
-	std::cout << "Total quota used    : " << licenseInfos.usedQuota << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Quota limit in day  : " << licenseInfos.quotaDayLimit << std::endl;
-	std::cout << "Quota used in day   : " << licenseInfos.usedQuotaDay << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Quota limit in month: " << licenseInfos.quotaMonthLimit << std::endl;
-	std::cout << "Quota used in month : " << licenseInfos.usedQuotaMonth << std::endl;
-	std::cout << std::endl;
-
-	switch (licenseInfos.scopes)
-	{
-	case IEE_EEG:
-		licenseType = IEE_LicenseType_t::IEE_EEG;
-
-		std::cout << "License type : " << "EEG" << std::endl;
-		std::cout << std::endl;
-		break;
-	case IEE_EEG_PM:
-		licenseType = IEE_LicenseType_t::IEE_EEG_PM;
-
-		std::cout << "License type : " << "EEG + PM" << std::endl;
-		std::cout << std::endl;
-		break;
-	case IEE_PM:
-		licenseType = IEE_LicenseType_t::IEE_PM;
-		std::cout << "License type : " << "PM" << std::endl;
-		std::cout << std::endl;
-		break;
-	default:
-		std::cout << "License type : " << "No type" << std::endl;
-		std::cout << std::endl;
-		break;
-	}
-}
-std::string LICENSE_KEY;
 //feature define
-struct Fixture_Add_Licensekey {
-	Fixture_Add_Licensekey() {
-		BOOST_TEST_MESSAGE("INPUT LICENSE_KEY:");
-		std::getline(std::cin, LICENSE_KEY, '\n');
-	}
+BOOST_AUTO_TEST_SUITE(ACTIVE_LICENSE)
 
-	//run after every test case finish
-	~Fixture_Add_Licensekey() {
-		BOOST_TEST_MESSAGE("run after every test case finish");
+//// case EDK_LICENSE_EXPIRED
+BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_EXPIRED.c_str());
+	BOOST_CHECK(result==EDK_LICENSE_EXPIRED);
+	if (result == EDK_LICENSE_REGISTERED) {
+		IEE_LicenseInfos_t licenseInfos;
+		// We can call this API any time to check current License information
+		result = IEE_LicenseInformation(&licenseInfos);
+		BOOST_CHECK(result== EDK_LICENSE_EXPIRED);
 	}
-};
-BOOST_FIXTURE_TEST_SUITE(CHECK_ACTIVE_LICENSE, Fixture_Add_Licensekey)
-BOOST_AUTO_TEST_CASE(GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_could_activate_license) {
-	int result = EDK_OK;
-	result = IEE_ActivateLicense(LICENSE_KEY.c_str());
-	BOOST_CHECK_EQUAL(result, EDK_LICENSE_REGISTERED);
-	switch (result)
-	{
-	case EDK_LICENSE_NOT_FOUND:
-		BOOST_FAIL("EDK_LICENSE_NOT_FOUND");
-		break;
-	case EDK_LICENSE_ERROR:
-		BOOST_FAIL("EDK_LICENSE_ERROR");
-		break;
-	case EDK_LICENSE_EXPIRED:
-		BOOST_FAIL("EDK_LICENSE_EXPIRED");
-		break;
-	case EDK_LICENSE_REGISTERED:
-		BOOST_TEST_MESSAGE("EDK_LICENSE_REGISTERED");
-		break;
-	case EDK_LICENSE_DEVICE_LIMITED:
-		BOOST_FAIL("EDK_LICENSE_DEVICE_LIMITED");
-		break;
-	case EDK_UNKNOWN_ERROR:
-		BOOST_FAIL("EDK_UNKNOWN_ERROR");
-		break;
+	
+}
 
-	default:
-		BOOST_FAIL(result);
-		break;
-	}
+BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_LICENSE_KEY_VALID_WHEN_server_is_up_THEN_user_could_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_VALID.c_str());
+	BOOST_CHECK(result== EDK_LICENSE_REGISTERED);
 	IEE_LicenseInfos_t licenseInfos;
-
 	// We can call this API any time to check current License information
 	result = IEE_LicenseInformation(&licenseInfos);
-	BOOST_TEST_MESSAGE("IEE_LicenseInfomation result = " + intToHex(result));
-	BOOST_CHECK_EQUAL(result, EDK_OK);
-	switch (result)
-	{
-	case EDK_OVER_QUOTA_IN_DAY:
-		BOOST_FAIL("EDK_OVER_QUOTA_IN_DAY");
-		break;
-	case EDK_OVER_QUOTA_IN_MONTH:
-		BOOST_FAIL("EDK_OVER_QUOTA_IN_MONTH");
-		break;
-	case EDK_LICENSE_EXPIRED:
-		BOOST_FAIL("EDK_LICENSE_EXPIRED");
-		break;
-	case EDK_OVER_QUOTA:
-		BOOST_FAIL("EDK_OVER_QUOTA");
-		break;
-	case EDK_ACCESS_DENIED:
-		BOOST_FAIL("EDK_ACCESS_DENIED");
-		break;
-	case EDK_LICENSE_ERROR:
-		BOOST_FAIL("EDK_LICENSE_ERROR");
-		break;
-	case EDK_NO_ACTIVE_LICENSE:
-		BOOST_FAIL("EDK_NO_ACTIVE_LICENSE");
-		break;
-	case EDK_OK:
-		BOOST_TEST_MESSAGE("EDK_OK");
-		break;
-	default:
-		BOOST_FAIL(result);
-		break;
-	}
-
-	printLicenseInformation(licenseInfos);
-
-	_getch();
+	BOOST_CHECK(result== EDK_OK);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_DAY_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_OVER_QUOTA_IN_DAY.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_OVER_QUOTA_IN_DAY);
+	IEE_LicenseInfos_t licenseInfos;
+	// We can call this API any time to check current License information
+	result = IEE_LicenseInformation(&licenseInfos);
+	BOOST_CHECK(result== EDK_OVER_QUOTA_IN_DAY);
+	if (result != EDK_OVER_QUOTA_IN_DAY) {
+		BOOST_TEST_MESSAGE("Quota limit in day: " << (int)licenseInfos.quotaDayLimit);
+		BOOST_TEST_MESSAGE("Quota used in day: " << (int) licenseInfos.usedQuotaDay);
+	}
+
+	
+}
+
+BOOST_AUTO_TEST_CASE(TC4_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_MONTH_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_OVER_QUOTA_IN_MONTH.c_str());
+	BOOST_CHECK(result== EDK_OVER_QUOTA_IN_MONTH);
+	IEE_LicenseInfos_t licenseInfos;
+	// We can call this API any time to check current License information
+	result = IEE_LicenseInformation(&licenseInfos);
+	BOOST_CHECK(result== EDK_OVER_QUOTA_IN_MONTH);
+	if (result==EDK_OK) {
+		BOOST_TEST_MESSAGE("Quota limit in month: "<< (int)licenseInfos.quotaMonthLimit);
+		BOOST_TEST_MESSAGE("Quota used in month : " << (int)licenseInfos.usedQuotaMonth);
+	}
+		//BOOST_TEST_MESSAGE("Total Quota Remain in day: " + remainQuotaMonth);
+	}
+}
+
+BOOST_AUTO_TEST_CASE(TC5_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_OVER_QUOTA.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_OVER_QUOTA);
+	
+	
+}
+BOOST_AUTO_TEST_CASE(TC6_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_DEVICE_LIMITED.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_LICENSE_DEVICE_LIMITED);
+
+}
+BOOST_AUTO_TEST_CASE(TC7_GIVEN_have_a_LICENSE_KEY_NOT_FOUND_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_NOT_FOUND.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_LICENSE_NOT_FOUND);
+
+}
+
+
 
