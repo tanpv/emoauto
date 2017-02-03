@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_
 	result = IEE_ActivateLicense(LICENSE_KEY_VALID.c_str());
 	bool test_result = false;
 
-	if(result == EDK_OK || result == EDK_LICENSE_REGISTERED)
+	if(result == EDK_OK)
 	{
 		BOOST_TEST_MESSAGE("Activate license OK");
 		test_result = true;
@@ -86,21 +86,34 @@ BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_
 	BOOST_CHECK(test_result == true);
 }
 
-BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_DAY_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+
+// Activate license
+// Use license for 5 times, so license run out of quota
+// Connect to emoengine
+// Expect the return is over quota in day
+
+BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5_sessions_THEN_user_should_get_message_run_out_of_quota) {
+	
 	int result;
 	result = IEE_ActivateLicense(LICENSE_KEY_OVER_QUOTA_IN_DAY.c_str());
-	BOOST_CHECK_EQUAL(result, EDK_OVER_QUOTA_IN_DAY);
-	IEE_LicenseInfos_t licenseInfos;
-	// We can call this API any time to check current License information
-	result = IEE_LicenseInformation(&licenseInfos);
-	BOOST_CHECK(result== EDK_OVER_QUOTA_IN_DAY);
-	if (result != EDK_OVER_QUOTA_IN_DAY) {
-		BOOST_TEST_MESSAGE("Quota limit in day: " << (int)licenseInfos.quotaDayLimit);
-		BOOST_TEST_MESSAGE("Quota used in day: " << (int) licenseInfos.usedQuotaDay);
+	bool test_result = false;
+
+	if (result == EDK_OK)
+	{
+		BOOST_TEST_MESSAGE("Activate license OK");
+		test_result = true;
 	}
 
-	
+	if (result == EDK_LICENSE_REGISTERED)
+	{
+		BOOST_TEST_MESSAGE("License already registered");
+		test_result = true;
+	}
+
+	BOOST_CHECK(test_result == true);
+
 }
+
 
 BOOST_AUTO_TEST_CASE(TC4_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_MONTH_WHEN_server_is_up_THEN_user_could_not_activate_license) {
 	int result;
