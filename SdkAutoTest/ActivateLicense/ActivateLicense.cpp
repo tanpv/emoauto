@@ -81,16 +81,10 @@ BOOST_AUTO_TEST_SUITE(ACTIVE_LICENSE)
 
 //// case EDK_LICENSE_EXPIRED
 BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+
 	int result;
 	result = IEE_ActivateLicense(LICENSE_KEY_EXPIRED.c_str());
-	BOOST_CHECK(result==EDK_LICENSE_EXPIRED);
-	if (result == EDK_LICENSE_REGISTERED) {
-		IEE_LicenseInfos_t licenseInfos;
-		// We can call this API any time to check current License information
-		result = IEE_LicenseInformation(&licenseInfos);
-		BOOST_CHECK(result== EDK_LICENSE_EXPIRED);
-	}
-	
+	BOOST_CHECK(result == EDK_LICENSE_EXPIRED);
 }
 
 BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_LICENSE_KEY_VALID_WHEN_server_is_up_THEN_user_could_activate_license) {
