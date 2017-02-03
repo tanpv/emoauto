@@ -11,10 +11,12 @@
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+/*
 #ifdef _WIN32
 #include <windows.h>
 #include <conio.h>
 #endif
+*/
 
 #include <iostream>
 #include <sstream>
@@ -52,34 +54,8 @@ std::string const LICENSE_KEY_LICENSE_ERROR = "50541929-7330-4059-b073-30814ff15
 //case EDK_NO_ACTIVE_LICENSE
 std::string const LICENSE_KEY_NO_ACTIVE_LICENSE = "50541929-7330-4059-b073-30814ff15ea2";
 
-std::string convertEpochToTime(time_t epochTime, std::string format = "%Y-%m-%d %H:%M:%S");
-std::string convertEpochToTime(time_t epochTime, std::string format)
-{
-	if (format == "")
-		format = "%Y-%m-%d %H:%M:%S";
-
-	struct tm timeinfo;
-	localtime_s(&timeinfo, &epochTime);
-
-	char timestamp[64] = { 0 };
-	strftime(timestamp, sizeof(timestamp), format.c_str(), &timeinfo);
-	return timestamp;
-}
-
-std::string intToHex(int x)
-{
-	std::stringstream stream;
-	stream << std::hex << x;
-	std::string result(stream.str());
-	result = "0x" + result;
-
-	return result;
-}
-
-//feature define
 BOOST_AUTO_TEST_SUITE(ACTIVE_LICENSE)
 
-//// case EDK_LICENSE_EXPIRED
 BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
 
 	int result;
@@ -87,14 +63,27 @@ BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN
 	BOOST_CHECK(result == EDK_LICENSE_EXPIRED);
 }
 
-BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_LICENSE_KEY_VALID_WHEN_server_is_up_THEN_user_could_activate_license) {
+
+
+BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_could_activate_license_successfully) {
+	
 	int result;
 	result = IEE_ActivateLicense(LICENSE_KEY_VALID.c_str());
-	BOOST_CHECK(result== EDK_LICENSE_REGISTERED);
-	IEE_LicenseInfos_t licenseInfos;
-	// We can call this API any time to check current License information
-	result = IEE_LicenseInformation(&licenseInfos);
-	BOOST_CHECK(result== EDK_OK);
+	bool test_result = false;
+
+	if(result == EDK_OK || result == EDK_LICENSE_REGISTERED)
+	{
+		BOOST_TEST_MESSAGE("Activate license OK");
+		test_result = true;
+	}
+
+	if (result == EDK_LICENSE_REGISTERED)
+	{
+		BOOST_TEST_MESSAGE("License already registered");
+		test_result = true;
+	}
+
+	BOOST_CHECK(test_result == true);
 }
 
 BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_DAY_WHEN_server_is_up_THEN_user_could_not_activate_license) {
