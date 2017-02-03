@@ -10,6 +10,8 @@
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp> 
+
 
 /*
 #ifdef _WIN32
@@ -112,7 +114,30 @@ BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5
 
 	BOOST_CHECK(test_result == true);
 
+	// Get license info
+	IEE_LicenseInfos_t licenseInfos;
+	IEE_LicenseInformation(&licenseInfos);
+	BOOST_TEST_MESSAGE(licenseInfos.usedQuotaDay);
+	int run_until_out_of_day_quota = 5 - licenseInfos.usedQuotaDay;
+
+	for (int i = 0; i < run_until_out_of_day_quota; i++)
+	{		
+		IEE_EngineConnect();
+		boost::this_thread::sleep(boost::posix_time::seconds(61));
+		IEE_EngineDisconnect();
+		IEE_LicenseInformation(&licenseInfos);
+		BOOST_TEST_MESSAGE(licenseInfos.usedQuotaDay);
+	}
+
+	// connect to engine after out of quota
+	IEE_EngineConnect();
+	boost::this_thread::sleep(boost::posix_time::seconds(61));
+	IEE_EngineDisconnect();
+	// used quota not increase after run out of quota
+	BOOST_CHECK(licenseInfos.usedQuota == 5);
+
 }
+
 
 
 BOOST_AUTO_TEST_CASE(TC4_GIVEN_have_a_LICENSE_KEY_OVER_QUOTA_IN_MONTH_WHEN_server_is_up_THEN_user_could_not_activate_license) {
