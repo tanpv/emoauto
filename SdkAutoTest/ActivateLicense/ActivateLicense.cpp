@@ -84,8 +84,7 @@ BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_
 // Activate license
 // Use license for 5 times, so license run out of quota
 // Connect to emoengine
-// Expect the return is over quota in day
-
+// Expect total session not increase
 BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5_sessions_THEN_user_should_get_message_run_out_of_quota) {
 	
 	int result;
