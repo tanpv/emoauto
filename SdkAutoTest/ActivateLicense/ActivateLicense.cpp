@@ -12,14 +12,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp> 
 
-
-/*
-#ifdef _WIN32
-#include <windows.h>
-#include <conio.h>
-#endif
-*/
-
 #include <iostream>
 #include <sstream>
 #include <time.h>
@@ -29,8 +21,7 @@
 #include "Iedk.h"
 #include "IedkErrorCode.h"
 
-std::string edfFile = "../../edf/t.edf";
-//defined license_key in testcase
+
 // case EDK_LICENSE_NOT_FOUND
 std::string const LICENSE_KEY_NOT_FOUND = "11b9d092-db6b-4f18-b7b4-04d640110d4c";
 //case EDK_LICENSE_ERROR
@@ -40,7 +31,7 @@ std::string const LICENSE_KEY_EXPIRED = "a1b9d092-db6b-4f18-b7b4-04d640110d4c";
 //case EDK_LICENSE_REGISTERED
 std::string const LICENSE_KEY_VALID = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
 //case EDK_LICENSE_DEVICE_LIMITED
-std::string const LICENSE_KEY_DEVICE_LIMITED = "5e9f73e0-3aab-4bc7-9477-9838c3c0eb23";
+std::string const LICENSE_KEY_DEVICE_LIMITED = "442254d4-8c33-434c-9083-642b4be26a6a";
 //case EDK_UNKNOWN_ERROR
 std::string const UNKNOWN_ERROR = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
 //case EDK_OVER_QUOTA_IN_DAY
@@ -56,7 +47,9 @@ std::string const LICENSE_KEY_LICENSE_ERROR = "1a3ba5f0-2554-42de-a261-7b777e764
 //case EDK_NO_ACTIVE_LICENSE
 std::string const LICENSE_KEY_NO_ACTIVE_LICENSE = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
 
+
 BOOST_AUTO_TEST_SUITE(ACTIVE_LICENSE)
+
 
 BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
 
@@ -64,7 +57,6 @@ BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN
 	result = IEE_ActivateLicense(LICENSE_KEY_EXPIRED.c_str());
 	BOOST_CHECK(result == EDK_LICENSE_EXPIRED);
 }
-
 
 
 BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_could_activate_license_successfully) {
@@ -93,6 +85,7 @@ BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_
 // Use license for 5 times, so license run out of quota
 // Connect to emoengine
 // Expect the return is over quota in day
+
 BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5_sessions_THEN_user_should_get_message_run_out_of_quota) {
 	
 	int result;
@@ -138,4 +131,21 @@ BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5
 	BOOST_CHECK(licenseInfos.usedQuotaDay == 5);
 }
 
+// need to prepare a license and make it run out of device
+BOOST_AUTO_TEST_CASE(TC6_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_DEVICE_LIMITED.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_LICENSE_DEVICE_LIMITED);
 
+}
+
+// need to prepare a license in error - not found
+BOOST_AUTO_TEST_CASE(TC7_GIVEN_have_a_LICENSE_KEY_IS_ERROR_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+
+	int result;
+	result = IEE_ActivateLicense(LICENSE_KEY_NOT_FOUND.c_str());
+	BOOST_CHECK_EQUAL(result, EDK_LICENSE_ERROR);
+
+}
+
+}
