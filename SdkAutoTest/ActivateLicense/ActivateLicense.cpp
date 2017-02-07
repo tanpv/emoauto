@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5
 }
 
 // need to prepare a license and make it run out of device
-BOOST_AUTO_TEST_CASE(TC6_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+BOOST_AUTO_TEST_CASE(TC4_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
 	int result;
 	result = IEE_ActivateLicense(LICENSE_KEY_DEVICE_LIMITED.c_str());
 	BOOST_CHECK_EQUAL(result, EDK_LICENSE_DEVICE_LIMITED);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(TC6_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_
 }
 
 // need to prepare a license in error - not found
-BOOST_AUTO_TEST_CASE(TC7_GIVEN_have_a_LICENSE_KEY_IS_ERROR_WHEN_server_is_up_THEN_user_could_not_activate_license) {
+BOOST_AUTO_TEST_CASE(TC5_GIVEN_have_a_LICENSE_KEY_IS_ERROR_WHEN_server_is_up_THEN_user_could_not_activate_license) {
 
 	int result;
 	result = IEE_ActivateLicense(LICENSE_KEY_NOT_FOUND.c_str());
