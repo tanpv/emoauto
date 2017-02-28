@@ -37,58 +37,53 @@ extern "C" {
 #   define EDK_API extern
 #endif
 
-    typedef enum IEE_LicenseType_enum {
-        IEE_EEG = 0x001,      // Enable EEG data
-        IEE_PM  = 0x002,      // Enable Performance Metric detection   
-        IEE_EEG_PM = IEE_EEG | IEE_PM   // Enable EEG data and Performance Metric detection   
-    } IEE_LicenseType_t;
+	typedef enum IEE_LicenseType_enum {
+		IEE_EEG = 0x001,      // Enable EEG data
+		IEE_PM = 0x002,      // Enable Performance Metric detection   
+		IEE_EEG_PM = IEE_EEG | IEE_PM   // Enable EEG data and Performance Metric detection   
+	} IEE_LicenseType_t;
 
-    typedef struct IEE_LicenseInfos_struct {
-        unsigned int scopes;       // license type
-        unsigned int date_from;    // epoch time 
-        unsigned int date_to;      // epoch time
-        int     seat_count;        // number of seat
+	typedef struct IEE_LicenseInfos_struct {
+		unsigned int scopes;            // license type
+		unsigned int date_from;         // epoch time 
+		unsigned int date_to;           // epoch time
+		unsigned int seat_count;        // number of seat
+		unsigned int usedQuota;         // total number of session used.
+		unsigned int quota;             // total number of session got for this PC.
+		unsigned int remainingSession;  // remaining session of the license. 
 
-        int     quotaDayLimit;     // session limit in day
-        int     usedQuotaDay;      // session used in day
-        int     quotaMonthLimit;   // session limit in month
-        int     usedQuotaMonth;    // session used in month
-        int     usedQuota;         // total session used
-        int     quota;             // total session in the license
-    } IEE_LicenseInfos_t;
+	} IEE_LicenseInfos_t;
 
 
-    //! Check infos of the license
-    /*!    
+	//! Check infos of the license
+	/*!
 
-        \param licenseInfo - License Information    
-        \return    EDK_ERROR_CODE
-                   EDK_OVER_QUOTA_IN_DAY
-                   EDK_OVER_QUOTA_IN_MONTH
-                   EDK_LICENSE_EXPIRED
-                   EDK_OVER_QUOTA
-                   EDK_ACCESS_DENIED
-                   EDK_LICENSE_ERROR
-                   EDK_NO_ACTIVE_LICENSE
-                   EDK_OK
+	\param licenseInfo - License Information
+	\return    EDK_ERROR_CODE
+	EDK_LICENSE_EXPIRED
+	EDK_OVER_QUOTA
+	EDK_ACCESS_DENIED
+	EDK_LICENSE_ERROR
+	EDK_NO_ACTIVE_LICENSE
+	EDK_OK
 
-        \sa IedkErrorCode.h
-    */
-    EDK_API int
-        IEE_LicenseInformation(IEE_LicenseInfos_t * licenseInfo);
+	\sa IedkErrorCode.h
+	*/
+	EDK_API int
+		IEE_LicenseInformation(IEE_LicenseInfos_t * licenseInfo);
 
 
-    //! Activate a license with license ID
-    /*!
+	//! Activate a license with license ID
+	/*!
 
-        \param licenseID - License ID
-        \return EDK_ERROR_CODE
-                     - EDK_OK if the command succeeded
+	\param licenseID - License ID
+	\return EDK_ERROR_CODE
+	- EDK_OK if the command succeeded
 
-        \sa IedkErrorCode.h
-    */
-    EDK_API int 
-        IEE_ActivateLicense(const char* licenseID);
+	\sa IedkErrorCode.h
+	*/
+	EDK_API int
+		IEE_ActivateLicense(const char* licenseID, int grantNum);
 
 
 #ifdef __cplusplus

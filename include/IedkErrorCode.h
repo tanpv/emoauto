@@ -94,8 +94,8 @@
 
 #define EDK_COULDNT_CONNECT                 0x1003
 
-//! Profile created by EDK_SaveUserProfile() is existed in Emotiv Cloud.
-#define EDK_PROFILE_CLOUD_EXISTED           0x1010
+//! Profile created by EDK_SaveUserProfile() already exists in Emotiv Cloud.
+#define EDK_CLOUD_PROFILE_EXISTS            0x1010
 
 //! The file uploaded to cloud is failed
 #define EDK_UPLOAD_FAILED                   0x1011
@@ -138,12 +138,11 @@
 //! The license is over quota
 #define EDK_OVER_QUOTA                      0x2013
 
-//! The license is over quota in day
-#define EDK_OVER_QUOTA_IN_DAY               0x2014
+//! Debit number is invalid
+#define EDK_INVALID_DEBIT_ERROR             0x2014
 
-//! The license is over quota in month
-#define EDK_OVER_QUOTA_IN_MONTH             0x2015
-
+//! Device list of the license is over
+#define EDK_OVER_DEVICE_LIST                0x2015
 
 #define EDK_APP_QUOTA_EXCEEDED              0x2016
 
@@ -165,9 +164,15 @@
 //! The license is updated
 #define EDK_UPDATE_LICENSE                  0x2023
 
+//! Debit number is more then max of remaining session number
+#define EDK_INVALID_DEBIT_NUMBER            0x2024
+
 //! The file was not found
 #define EDK_FILE_NOT_FOUND                  0x2030
 
 #define EDK_ACCESS_DENIED                   0x2031
+
+//! Could not connect to internet
+#define EDK_NO_INTERNET_CONNECTION          0x2032
 
 #endif

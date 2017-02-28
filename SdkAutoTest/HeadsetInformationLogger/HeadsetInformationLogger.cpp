@@ -13,7 +13,6 @@ IS_GetBatteryChargeLevel
 #define BOOST_TEST_NO_MAIN
 
 #include <iostream>
-#include <fstream>
 #include <conio.h>
 
 #include "Iedk.h"
@@ -26,9 +25,7 @@ IS_GetBatteryChargeLevel
 #include <atomic>
 #include <chrono>
 #include <thread>
-#include <string>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <atomic>
 #include <EdfData.h>
 
 namespace utf = boost::unit_test;

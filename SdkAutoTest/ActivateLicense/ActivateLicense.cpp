@@ -13,138 +13,152 @@
 #include <boost/thread/thread.hpp> 
 
 #include <iostream>
-#include <sstream>
-#include <time.h>
-#include <stdio.h>
-#include <ctime>
+#include <conio.h>
+#include <atomic>
+#include <chrono>
+#include <thread>
 
 #include "Iedk.h"
 #include "IedkErrorCode.h"
+#include "EmotivLicense.h"
+#include <EmotivCloudClient.h>
 
+/**
+ * License keys:
+ */
 
-// case EDK_LICENSE_NOT_FOUND
-std::string const LICENSE_KEY_NOT_FOUND = "11b9d092-db6b-4f18-b7b4-04d640110d4c";
-//case EDK_LICENSE_ERROR
-std::string const LICENSE_KEY_ERROR = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-// case EDK_LICENSE_EXPIRED
-std::string const LICENSE_KEY_EXPIRED = "a1b9d092-db6b-4f18-b7b4-04d640110d4c";
-//case EDK_LICENSE_REGISTERED
-std::string const LICENSE_KEY_VALID = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_LICENSE_DEVICE_LIMITED
-std::string const LICENSE_KEY_DEVICE_LIMITED = "442254d4-8c33-434c-9083-642b4be26a6a";
-//case EDK_UNKNOWN_ERROR
-std::string const UNKNOWN_ERROR = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_OVER_QUOTA_IN_DAY
-std::string const LICENSE_KEY_OVER_QUOTA_IN_DAY = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_OVER_QUOTA_IN_MONTH
-std::string const LICENSE_KEY_OVER_QUOTA_IN_MONTH = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_OVER_QUOTA
-std::string const LICENSE_KEY_OVER_QUOTA = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_ACCESS_DENIED
-std::string const LICENSE_KEY_ACCESS_DENIED = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_LICENSE_ERROR
-std::string const LICENSE_KEY_LICENSE_ERROR = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
-//case EDK_NO_ACTIVE_LICENSE
-std::string const LICENSE_KEY_NO_ACTIVE_LICENSE = "1a3ba5f0-2554-42de-a261-7b777e7640f7";
+// EEG, PM 2 seat
+std::string const validKeyEP2 = "e6bcfafe-23e2-44fb-bb9d-603de7326cd9";
 
+namespace utf = boost::unit_test;
+std::atomic<bool> isTimeout(false);
 
-BOOST_AUTO_TEST_SUITE(ACTIVE_LICENSE)
-
-
-BOOST_AUTO_TEST_CASE(TC1_GIVEN_have_a_LICENSE_KEY_EXPIRED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
-
-	int result;
-	result = IEE_ActivateLicense(LICENSE_KEY_EXPIRED.c_str());
-	BOOST_CHECK(result == EDK_LICENSE_EXPIRED);
+// Set timeout
+int const runtime = 10;
+constexpr std::chrono::seconds test_case_timer(runtime);
+void on_timeout(const boost::system::error_code&)
+{
+	isTimeout = true;
+	BOOST_TEST_MESSAGE("Timer canceled or expired \n");
 }
 
+IEE_LicenseInfos_t licenseInfos;
 
-BOOST_AUTO_TEST_CASE(TC2_GIVEN_have_a_valid_license_WHEN_server_is_up_THEN_user_could_activate_license_successfully) {
-	
-	int result;
-	result = IEE_ActivateLicense(LICENSE_KEY_VALID.c_str());
-	bool test_result = false;
+// Fixture define
+struct Fixture {
+	//run before every test case start
+	Fixture() {
+		std::cout << "Run time: " << runtime << "s" << '\n';
+		//BOOST_CHECK_EQUAL(IEE_EngineConnect(), EDK_OK);
 
-	if(result == EDK_OK)
-	{
-		BOOST_TEST_MESSAGE("Activate license OK");
-		test_result = true;
+		std::string const userName = "toannd";
+		std::string const password = "3Motiv8ed";
+
+		// Connect headset
+		BOOST_CHECK_EQUAL(IEE_EngineConnect(), EDK_OK);
+		// Connect Emotiv Cloud
+		BOOST_CHECK_EQUAL(EC_Connect(), EDK_OK);
+		// Login to Emotiv Cloud
+		BOOST_CHECK_EQUAL(EC_Login(userName.c_str(), password.c_str()), EDK_OK);
 	}
 
-	if (result == EDK_LICENSE_REGISTERED)
-	{
-		BOOST_TEST_MESSAGE("License already registered");
-		test_result = true;
+	//run after every test case finish
+	~Fixture() {
 	}
 
-	BOOST_CHECK(test_result == true);
+
+};
+
+BOOST_FIXTURE_TEST_SUITE(ACTIVE_LICENSE, Fixture)
+
+BOOST_AUTO_TEST_CASE(TC1_GIVEN_a_valid_license_WHEN_input_invalid_grant_number_THEN_user_could_not_activate_license) {
+	// Feed grant number from -100 to -1 to IEE_ActivateLicense()
+	for (auto i = -5; i < 0; i++) {
+		auto errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), i);
+		BOOST_CHECK_MESSAGE(errorCode != EDK_OK, "ERROR: License activated with grant number = " << i << " - Error Code = " << std::hex << errorCode);
+		Sleep(10000);
+	}
 }
 
-
-// Activate license
-// Use license for 5 times, so license run out of quota
-// Connect to emoengine
-// Expect total session not increase
-BOOST_AUTO_TEST_CASE(TC3_GIVEN_have_a_valid_license_with_1_seat_WHEN_after_use_5_sessions_THEN_user_should_get_message_run_out_of_quota) {
+BOOST_AUTO_TEST_CASE(TC2_GIVEN_a_valid_license_WHEN_input_0_as_grant_number_THEN_user_could_activate_license_successfully) {
+	auto errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), 0);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: License activated with grant number = " << 0 << " - Error Code = " << std::hex << errorCode);
 	
-	int result;
-	result = IEE_ActivateLicense(LICENSE_KEY_OVER_QUOTA_IN_DAY.c_str());
-	bool test_result = false;
-
-	if (result == EDK_OK)
-	{
-		BOOST_TEST_MESSAGE("Activate license OK");
-		test_result = true;
-	}
-
-	if (result == EDK_LICENSE_REGISTERED)
-	{
-		BOOST_TEST_MESSAGE("License already registered");
-		test_result = true;
-	}
-
-	BOOST_CHECK(test_result == true);
-
-	// Get license info
-	IEE_LicenseInfos_t licenseInfos;
 	IEE_LicenseInformation(&licenseInfos);
-	BOOST_TEST_MESSAGE("Used in a day: " << (int)licenseInfos.usedQuotaDay);
-	BOOST_TEST_MESSAGE("Number of seat: " << (int)licenseInfos.seat_count);
-	int run_until_out_of_day_quota = 5 - licenseInfos.usedQuotaDay;
+	auto const cloudQuota = licenseInfos.sessionRemaining;
+	BOOST_TEST_MESSAGE("cloudQuota = " << cloudQuota);
+	Sleep(10000);
+}
 
-	for (int i = 0; i < run_until_out_of_day_quota; i++)
-	{		
-		IEE_EngineConnect();
-		boost::this_thread::sleep(boost::posix_time::seconds(61));
-		IEE_EngineDisconnect();
+BOOST_AUTO_TEST_CASE(TC3_GIVEN_a_valid_license_WHEN_input_1_as_grant_number_THEN_user_could_activate_license_successfully) {
+	// Grant 0 session just for activate license to refresh cloud quota
+	auto errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), 0);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: License activated with grant number = " << 0 << " - Error Code = " << std::hex << errorCode);
+	Sleep(10000);
+
+	// Get infomation from activated license
+	errorCode = IEE_LicenseInformation(&licenseInfos);
+	auto const quotaBeforeWithdraw = licenseInfos.quota;
+	BOOST_TEST_MESSAGE("PC Quota = " << quotaBeforeWithdraw);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: Unable to get information from license - Error Code = " << std::hex << errorCode);
+	auto const withdrawSession = 1;
+	// Withraw 1 session from cloud
+	BOOST_TEST_MESSAGE("Get 1 session from Cloud");
+	errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), withdrawSession);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: Unable to withraw session from cloud - Error Code = " << std::hex << errorCode);
+	// Check quota after withdaw
+	IEE_LicenseInformation(&licenseInfos);
+	auto const newQuota = licenseInfos.quota;
+	BOOST_CHECK_MESSAGE(newQuota == (quotaBeforeWithdraw + withdrawSession), "Quota number error mismatch");
+	Sleep(10000);
+}
+
+BOOST_AUTO_TEST_CASE(TC4_GIVEN_a_valid_license_WHEN_input_10_as_grant_number_THEN_user_could_activate_license) {
+	// Grant 0 session just for activate license
+	auto errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), 0);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: License activated with grant number = " << 0 << " - Error Code = " << std::hex << errorCode);
+	Sleep(10000);
+
+	// Get infomation from activated license
+	errorCode = IEE_LicenseInformation(&licenseInfos);
+	auto quotaBeforeWithdraw = licenseInfos.quota;
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: Unable to get information from license - Error Code = " << std::hex << errorCode);
+	
+
+	auto withdrawSession = 10;
+	// Withraw 10 session from cloud
+	errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), withdrawSession);
+	auto cloudQuota = licenseInfos.sessionRemaining;
+
+	if (withdrawSession <= cloudQuota) {
+		BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: Unable to withraw session from cloud - Error Code = " << std::hex << errorCode);
+		// Check quota after withdaw
 		IEE_LicenseInformation(&licenseInfos);
-		BOOST_TEST_MESSAGE(licenseInfos.usedQuotaDay);
+		auto newQuota = licenseInfos.quota;
+		BOOST_CHECK_MESSAGE(newQuota == (quotaBeforeWithdraw + withdrawSession), "Quota number error mismatch");
 	}
-
-	// connect to engine after out of quota
-	int current_used_session = licenseInfos.usedQuota;
-	IEE_EngineConnect();
-	boost::this_thread::sleep(boost::posix_time::seconds(65));
-	IEE_EngineDisconnect();
-	// used quota not increase after run out of quota
-	BOOST_CHECK(licenseInfos.usedQuotaDay == 5);
+	else {
+		BOOST_CHECK_MESSAGE(errorCode != EDK_OK, "ERROR: Able to withdraw invalid quota - Error Code = " << std::hex << errorCode);
+	}
+	Sleep(10000);
 }
 
-// need to prepare a license and make it run out of device
-BOOST_AUTO_TEST_CASE(TC4_GIVEN_have_a_LICENSE_KEY_DEVICE_LIMITED_WHEN_server_is_up_THEN_user_could_not_activate_license) {
-	int result;
-	result = IEE_ActivateLicense(LICENSE_KEY_DEVICE_LIMITED.c_str());
-	BOOST_CHECK_EQUAL(result, EDK_LICENSE_DEVICE_LIMITED);
+BOOST_AUTO_TEST_CASE(TC5_GIVEN_a_valid_license_WHEN_input_grant_number_more_than_cloud_remain_THEN_user_could_not_activate_license) {
+	// Grant 0 session just for activate license
+	auto errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), 0);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: License activated with grant number = " << 0 << " - Error Code = " << std::hex << errorCode);
+	Sleep(10000);
 
+	// Get infomation from activated license
+	errorCode = IEE_LicenseInformation(&licenseInfos);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "ERROR: Unable to get information from license - Error Code = " << std::hex << errorCode);
+
+	auto cloudQuota = licenseInfos.sessionRemaining;
+	for (auto i = 0; i < 5; i++) {
+		errorCode = IEE_ActivateLicense(validKeyEP2.c_str(), cloudQuota + i);
+		BOOST_CHECK_MESSAGE(errorCode != EDK_OK, "ERROR: Able to withraw more available session");
+		Sleep(10000);
+	}
 }
 
-// need to prepare a license in error - not found
-BOOST_AUTO_TEST_CASE(TC5_GIVEN_have_a_LICENSE_KEY_IS_ERROR_WHEN_server_is_up_THEN_user_could_not_activate_license) {
-
-	int result;
-	result = IEE_ActivateLicense(LICENSE_KEY_NOT_FOUND.c_str());
-	BOOST_CHECK_EQUAL(result, EDK_LICENSE_ERROR);
-
-}
-
-}
+BOOST_AUTO_TEST_SUITE_END()
