@@ -44,13 +44,13 @@ extern "C" {
     } IEE_LicenseType_t;
 
     typedef struct IEE_LicenseInfos_struct {
-        unsigned int scopes;       // license type
-        unsigned int date_from;    // epoch time 
-        unsigned int date_to;      // epoch time
+        unsigned int scopes;            // license type
+        unsigned int date_from;         // epoch time 
+        unsigned int date_to;           // epoch time
         unsigned int seat_count;        // number of seat
         unsigned int usedQuota;         // total number of session used.
         unsigned int quota;             // total number of session got for this PC.
-        unsigned int sessionRemaining;  // remaining session of the license. 
+        unsigned int remainingSession;  // remaining session of the license. 
 
     } IEE_LicenseInfos_t;
 
@@ -60,8 +60,6 @@ extern "C" {
 
         \param licenseInfo - License Information    
         \return    EDK_ERROR_CODE
-                   EDK_OVER_QUOTA_IN_DAY
-                   EDK_OVER_QUOTA_IN_MONTH
                    EDK_LICENSE_EXPIRED
                    EDK_OVER_QUOTA
                    EDK_ACCESS_DENIED
