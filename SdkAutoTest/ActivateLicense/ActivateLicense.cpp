@@ -55,7 +55,7 @@ struct Fixture {
 		std::string const password = "3Motiv8ed";
 
 		// Connect headset
-		BOOST_CHECK_EQUAL(IEE_EngineConnect(), EDK_OK);
+		//BOOST_CHECK_EQUAL(IEE_EngineConnect(), EDK_OK);
 		// Connect Emotiv Cloud
 		BOOST_CHECK_EQUAL(EC_Connect(), EDK_OK);
 		// Login to Emotiv Cloud
