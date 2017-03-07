@@ -50,22 +50,27 @@ extern "C" {
         unsigned int seat_count;        // number of seat
         unsigned int usedQuota;         // total number of session used.
         unsigned int quota;             // total number of session got for this PC.
-        unsigned int remainingSession;  // remaining session of the license. 
 
     } IEE_LicenseInfos_t;
 
+    //! Check information of the license
+    /*!
+        \param remainingSessions - remaining session number of the license. 
+        \return EDK_ERROR_CODE
+                     - EDK_OK if the command succeeded
 
-    //! Check infos of the license
+        \sa IedkErrorCode.h
+    */
+    EDK_API int
+        IEE_GetRemainingSessions(const char* licenseID, unsigned int* remainingSessions);
+
+
+    //! Check information of the license
     /*!    
-
+        \param licenseID - License key
         \param licenseInfo - License Information    
-        \return    EDK_ERROR_CODE
-                   EDK_LICENSE_EXPIRED
-                   EDK_OVER_QUOTA
-                   EDK_ACCESS_DENIED
-                   EDK_LICENSE_ERROR
-                   EDK_NO_ACTIVE_LICENSE
-                   EDK_OK
+        \return EDK_ERROR_CODE
+                     - EDK_OK if the command succeeded
 
         \sa IedkErrorCode.h
     */
@@ -75,15 +80,16 @@ extern "C" {
 
     //! Activate a license with license ID
     /*!
-
-        \param licenseID - License ID
+        \param licenseID - License key
+        \param debitNum  - Indicates number of sessions will be deducted from license
+        
         \return EDK_ERROR_CODE
                      - EDK_OK if the command succeeded
 
         \sa IedkErrorCode.h
     */
     EDK_API int 
-        IEE_ActivateLicense(const char* licenseID, int grantNum);
+        IEE_ActivateLicense(const char* licenseID, unsigned int debitNum);
 
 
 #ifdef __cplusplus

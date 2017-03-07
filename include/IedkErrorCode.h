@@ -173,6 +173,9 @@
 #define EDK_ACCESS_DENIED                   0x2031
 
 //! Could not connect to internet
-#define EDK_NO_INTERNET_CONNECTION          0x2032
+#define EDK_NO_INTERNET_CONNECTION          0x2100
+
+//! An authentication error has occurred. Need to relogin. 
+#define EDK_AUTHENTICATION_ERROR            0x2101
 
 #endif
