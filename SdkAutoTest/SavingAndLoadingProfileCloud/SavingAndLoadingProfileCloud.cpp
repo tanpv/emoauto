@@ -19,11 +19,12 @@
 #include <conio.h>
 #include <atomic>
 #include <thread>
+#include <fstream>
 
 #include "Iedk.h"
 #include "IedkErrorCode.h"
 #include "EmotivLicense.h"
-#include <EmotivCloudClient.h>
+#include "EmotivCloudClient.h"
 
 #ifdef _WIN32
 	#include <conio.h>
@@ -37,61 +38,96 @@
 //--------------------------------------------------------------
 namespace utf = boost::unit_test;
 
-
-std::string profileName = "";
-std::string pathOfProfile = "./profiles/test1.emu";
-EmoEngineEventHandle eEvent = IEE_EmoEngineEventCreate();
-EmoStateHandle eState = IEE_EmoStateCreate();
 int engineUserID = -1;
 int userCloudID = -1;
 int profileID = -1;
 
-std::string userName = "toannd";
-std::string password = "3Motiv8ed";
+std::string const profileName = "test1";
+std::string const localProfile = "C:/Users/duytan/Desktop/Newfolder/test1.emu";
+std::string const cloudProfile = "C:/Users/duytan/Desktop/Newfolder/test2.emu";
+
+// username/pw for sdk 3.5 dev server
+std::string const userName = "toannd";
+std::string const password = "3Motiv8ed";
+
+// username/pw for sdk Community product server 
+//std::string userName = "min";
+//std::string password = "Zxcvbnm1";
 
 /************** FUNCTIONS *******************/
-void clean() {
-	IEE_EngineDisconnect();
-	IEE_EmoStateFree(eState);
-	IEE_EmoEngineEventFree(eEvent);
+
+void listCloudProfile(int userCloudID) {
+	int getNumberProfile = EC_GetAllProfileName(userCloudID);
+	std::cout << "Number of profiles: " << getNumberProfile << "\n";
+
+	// Print out all existing training profile on Emotiv Cloud
+	for (int i = 0; i < getNumberProfile; i++) {
+		std::cout << "Profile Name: " << EC_ProfileNameAtIndex(userCloudID, i) << ", ";
+		std::cout << "Profile ID: " << EC_ProfileIDAtIndex(userCloudID, i) << ", ";
+		std::cout << "Profile type: " << ((EC_ProfileTypeAtIndex(userCloudID, i) == profileFileType::TRAINING) ? "TRAINING" : "EMOKEY") << ", ";
+		std::cout << EC_ProfileLastModifiedAtIndex(userCloudID, i) << ",\r\n";
+	}
+}
+
+bool verifyProfile(const char * downloadFile, const char * uploadFile, long long * size) {
+	std::ifstream downloadFS(downloadFile, std::ifstream::ate | std::ifstream::binary);
+	long long downloadSize, uploadSize;
+	downloadSize = downloadFS.is_open() ? downloadFS.tellg() : -1;
+	downloadFS.close();
+
+	std::ifstream uploadFS(downloadFile, std::ifstream::ate | std::ifstream::binary);
+	uploadSize = uploadFS.is_open() ? uploadFS.tellg() : -1;
+	uploadFS.close();
+
+	*size = (downloadSize == uploadSize) ? downloadSize : -1;
+
+	if (*size == -1)
+		return false;
+	return downloadSize == uploadSize;
 }
 
 /********************************************/
 
-struct Fixture {
-	//run before every test case start
-	Fixture() {
-	}
+BOOST_AUTO_TEST_SUITE(EMOTIV_CLOUD_PROFILE)
 
-	//run after every test case finish
-	~Fixture() {
-		//BOOST_CHECK_MESSAGE(EC_Logout(userCloudID) == EDK_OK, "EC_Logout failed");
-		//BOOST_CHECK_MESSAGE(EC_Disconnect() == EDK_OK, "ERROR: EC_Disconnect failed");
-		//BOOST_CHECK_MESSAGE(IEE_EngineDisconnect() == EDK_OK, "ERROR: Engine Disconnect failed");
-
-		//std::cout << "FIXTURE DESTROY - User Cloud ID = " << userCloudID << "\n";
-	}
-};
-
-BOOST_FIXTURE_TEST_SUITE(EMOTIV_CLOUD_PROFILE, Fixture)
-
-BOOST_FIXTURE_TEST_CASE(TC01_GIVEN_correct_EmotivID_WHEN_access_to_Emotiv_cloud_THEN_user_fail_to_login, Fixture) {
+BOOST_AUTO_TEST_CASE(TC01_GIVEN_correct_EmotivID_WHEN_access_to_Emotiv_cloud_THEN_user_fail_to_login) {
+	int errorCode;
 	BOOST_CHECK_MESSAGE(IEE_EngineConnect() == EDK_OK, "ERROR: IEE_EngineConnect failed");
-	BOOST_CHECK_MESSAGE(EC_Connect() == EDK_OK, "ERROR: EC_Connect failed"); // Require dongle plugged-in
-	BOOST_CHECK_MESSAGE(EC_Login(userName.c_str(), password.c_str()) == EDK_OK, "EC_Login failed");
+	errorCode = EC_Connect();
+	BOOST_CHECK_MESSAGE(EC_Connect() == EDK_OK, "ERROR: EC_Connect failed: " << std::hex << errorCode); // Require dongle plugged-in
+	errorCode = EC_Login(userName.c_str(), password.c_str());
+	BOOST_CHECK_MESSAGE(EC_Login(userName.c_str(), password.c_str()) == EDK_OK, "EC_Login failed " << std::hex << errorCode);
 	BOOST_CHECK_MESSAGE(EC_GetUserDetail(&userCloudID) == EDK_OK, "EC_GetUserDetail failed");
-	BOOST_CHECK_MESSAGE(EC_GetAllProfileName(userCloudID) == EDK_OK, "EC_GetAllProfileName failed");
-	BOOST_CHECK_MESSAGE(EC_GetProfileId(userCloudID, profileName.c_str(), &profileID) == EDK_OK, "EC_GetProfileId failed");
+
+	//listCloudProfile(userCloudID);
 }
 
-BOOST_FIXTURE_TEST_CASE(TC02_GIVEN_invalid_profile_WHEN_accessed_to_Emotiv_cloud_THEN_user_fail_to_download, Fixture) {
-	std::string profileToDownload = "_invalid_profile_";
-	BOOST_CHECK_MESSAGE(EC_DownloadProfileFile(userCloudID, profileID, pathOfProfile.c_str()) != EDK_OK, "EC_DownloadProfileFile failed");
+BOOST_AUTO_TEST_CASE(TC02_GIVEN_local_valid_profile_WHEN_accessed_to_Emotiv_cloud_THEN_user_able_to_upload) {
+	int errorCode;
+	errorCode = EC_UploadProfileFile(userCloudID, profileName.c_str(), localProfile.c_str(), TRAINING, true);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "EC_UploadProfileFile failed");
+
+	//listCloudProfile(userCloudID);
 }
 
-BOOST_FIXTURE_TEST_CASE(TC03_GIVEN_invalid_profile_WHEN_accessed_to_Emotiv_cloud_THEN_user_fail_to_download, Fixture) {
-	std::string profileToDownload = "test1";
-	BOOST_CHECK_MESSAGE(EC_DownloadProfileFile(userCloudID, profileID, pathOfProfile.c_str()) == EDK_OK, "EC_DownloadProfileFile failed");
+
+BOOST_AUTO_TEST_CASE(TC03_GIVEN_invalid_profile_WHEN_accessed_to_Emotiv_cloud_THEN_user_fail_to_download) {
+	std::string cloudProfile = "_invalid_profile_";
+	BOOST_CHECK_MESSAGE(EC_GetProfileId(userCloudID, cloudProfile.c_str(), &profileID) != EDK_OK, "EC_GetProfileId error");
+	BOOST_CHECK_MESSAGE(EC_DownloadProfileFile(userCloudID, profileID, localProfile.c_str()) != EDK_OK, "EC_DownloadProfileFile error");
+}
+
+BOOST_AUTO_TEST_CASE(TC04_GIVEN_valid_profile_WHEN_accessed_to_Emotiv_cloud_THEN_user_able_to_download) {
+	int errorCode;
+	long long fileSize = 0;
+	std::string cloudProfileName = "test1";
+	errorCode = EC_GetProfileId(userCloudID, cloudProfileName.c_str(), &profileID);
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "EC_GetProfileId failed: " << std::hex << errorCode);
+	errorCode = EC_DownloadProfileFile(userCloudID, profileID, cloudProfile.c_str());
+	BOOST_CHECK_MESSAGE(errorCode == EDK_OK, "EC_DownloadProfileFile failed: " << errorCode);
+
+	bool valid = verifyProfile(cloudProfile.c_str(), localProfile.c_str(), &fileSize);
+	BOOST_CHECK_MESSAGE(valid == true, "File's not match");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
