@@ -21,6 +21,7 @@
 #include <atomic>
 #include <thread>
 #include <fstream>
+#include <stdio.h>
 
 #include "Iedk.h"
 #include "IedkErrorCode.h"
@@ -129,6 +130,10 @@ BOOST_AUTO_TEST_CASE(TC04_GIVEN_valid_profile_WHEN_accessed_to_Emotiv_cloud_THEN
 
 	bool valid = verifyProfile(cloudProfile.c_str(), localProfile.c_str(), &fileSize);
 	BOOST_CHECK_MESSAGE(valid == true, "File's not match");
+
+	// Remove profile in download folder
+	if (remove(cloudProfile.c_str()) != 0)
+		std::cout << "Cannot delete downloaded profile " << cloudProfile << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
