@@ -1,4 +1,5 @@
-﻿//--------------------------------------------------------------
+﻿#define _WIN32_WINNT 0x0501
+//--------------------------------------------------------------
 /*Checklist:
 - Login with correct EmotivID
 - Download valid profile
@@ -43,8 +44,8 @@ int userCloudID = -1;
 int profileID = -1;
 
 std::string const profileName = "test1";
-std::string const localProfile = "C:/Users/duytan/Desktop/Newfolder/test1.emu";
-std::string const cloudProfile = "C:/Users/duytan/Desktop/Newfolder/test2.emu";
+std::string const localProfile = "../../training_profile/upload/test1.emu";
+std::string const cloudProfile = "../../training_profile/download/test1.emu";
 
 // username/pw for sdk 3.5 dev server
 std::string const userName = "toannd";
