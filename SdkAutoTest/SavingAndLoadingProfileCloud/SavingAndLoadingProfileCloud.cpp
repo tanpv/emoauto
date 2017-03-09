@@ -1,4 +1,5 @@
-﻿//--------------------------------------------------------------
+﻿#define _WIN32_WINNT 0x0501
+//--------------------------------------------------------------
 /*Checklist:
 - Login with correct EmotivID
 - Download valid profile
@@ -20,6 +21,7 @@
 #include <atomic>
 #include <thread>
 #include <fstream>
+#include <stdio.h>
 
 #include "Iedk.h"
 #include "IedkErrorCode.h"
@@ -43,8 +45,8 @@ int userCloudID = -1;
 int profileID = -1;
 
 std::string const profileName = "test1";
-std::string const localProfile = "C:/Users/duytan/Desktop/Newfolder/test1.emu";
-std::string const cloudProfile = "C:/Users/duytan/Desktop/Newfolder/test2.emu";
+std::string const localProfile = "../../../training_profile/upload/test1.emu";
+std::string const cloudProfile = "../../../training_profile/download/test1.emu";
 
 // username/pw for sdk 3.5 dev server
 std::string const userName = "toannd";
@@ -128,6 +130,12 @@ BOOST_AUTO_TEST_CASE(TC04_GIVEN_valid_profile_WHEN_accessed_to_Emotiv_cloud_THEN
 
 	bool valid = verifyProfile(cloudProfile.c_str(), localProfile.c_str(), &fileSize);
 	BOOST_CHECK_MESSAGE(valid == true, "File's not match");
+
+	// Remove profile in download folder
+	if (valid == true) {
+		if (remove(cloudProfile.c_str()) != 0)
+			std::cout << "Cannot delete downloaded profile " << cloudProfile << std::endl;
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
